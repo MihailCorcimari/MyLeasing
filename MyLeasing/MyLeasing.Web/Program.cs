@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using MyLeasing.Web.Data;
-
-
+using MyLeasing.Web.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +11,8 @@ builder.Services.AddDbContext<DataContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<SeedDb>();
+
+builder.Services.AddScoped<IOwnerRepository, OwnerRepository>();
 
 var app = builder.Build();
 
