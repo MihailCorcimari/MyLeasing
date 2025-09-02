@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using MyLeasing.Common.Entities;
 using MyLeasing.Web.Repositories;
 
@@ -6,9 +7,9 @@ namespace MyLeasing.Web.Controllers
 {
     public class OwnersController : Controller
     {
-        private readonly IOwnerRepository _repo;
+        private readonly IGenericRepository<Owner> _repo;
 
-        public OwnersController(IOwnerRepository repo)
+        public OwnersController(IGenericRepository<Owner> repo)
         {
             _repo = repo;
         }
@@ -16,7 +17,9 @@ namespace MyLeasing.Web.Controllers
         // GET: Owners
         public async Task<IActionResult> Index()
         {
-            var owners = await _repo.GetAllAsync();
+            var owners = await _repo.GetAll()
+                .OrderBy(o => o.LastName).ThenBy(o => o.FirstName)
+                .ToListAsync();
             return View(owners);
         }
 
@@ -24,11 +27,8 @@ namespace MyLeasing.Web.Controllers
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
-
             var owner = await _repo.GetByIdAsync(id.Value);
-            if (owner == null) return NotFound();
-
-            return View(owner);
+            return owner == null ? NotFound() : View(owner);
         }
 
         // GET: Owners/Create
@@ -40,7 +40,6 @@ namespace MyLeasing.Web.Controllers
         public async Task<IActionResult> Create([Bind("Id,Document,FirstName,LastName,FixedPhone,CellPhone,Address")] Owner owner)
         {
             if (!ModelState.IsValid) return View(owner);
-
             await _repo.AddAsync(owner);
             await _repo.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
@@ -50,11 +49,8 @@ namespace MyLeasing.Web.Controllers
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
-
             var owner = await _repo.GetByIdAsync(id.Value);
-            if (owner == null) return NotFound();
-
-            return View(owner);
+            return owner == null ? NotFound() : View(owner);
         }
 
         // POST: Owners/Edit/5
@@ -74,11 +70,8 @@ namespace MyLeasing.Web.Controllers
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null) return NotFound();
-
             var owner = await _repo.GetByIdAsync(id.Value);
-            if (owner == null) return NotFound();
-
-            return View(owner);
+            return owner == null ? NotFound() : View(owner);
         }
 
         // POST: Owners/Delete/5

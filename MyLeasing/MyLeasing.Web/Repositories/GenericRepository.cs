@@ -1,0 +1,39 @@
+﻿using Microsoft.EntityFrameworkCore;
+using MyLeasing.Web.Data;
+
+namespace MyLeasing.Web.Repositories
+{
+    public class GenericRepository<T> : IGenericRepository<T> where T : class
+    {
+        private readonly DataContext _context;
+        private readonly DbSet<T> _dbSet;
+
+        public GenericRepository(DataContext context)
+        {
+            _context = context;
+            _dbSet = _context.Set<T>();
+        }
+
+        public IQueryable<T> GetAll() => _dbSet.AsNoTracking();
+
+        public async Task<T?> GetByIdAsync(int id) => await _dbSet.FindAsync(id);
+
+        public async Task AddAsync(T entity) => await _dbSet.AddAsync(entity);
+
+        public Task UpdateAsync(T entity)
+        {
+            _dbSet.Update(entity);
+            return Task.CompletedTask;
+        }
+
+        public Task DeleteAsync(T entity)
+        {
+            _dbSet.Remove(entity);
+            return Task.CompletedTask;
+        }
+
+        public async Task<bool> ExistsAsync(int id) => (await _dbSet.FindAsync(id)) != null;
+
+        public Task<int> SaveChangesAsync() => _context.SaveChangesAsync();
+    }
+}

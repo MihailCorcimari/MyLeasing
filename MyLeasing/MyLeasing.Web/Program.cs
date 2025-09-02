@@ -12,7 +12,7 @@ builder.Services.AddDbContext<DataContext>(options =>
 
 builder.Services.AddScoped<SeedDb>();
 
-builder.Services.AddScoped<IOwnerRepository, OwnerRepository>();
+builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
 var app = builder.Build();
 
